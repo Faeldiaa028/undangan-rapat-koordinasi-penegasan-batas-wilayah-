@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial‑scale=1.0">
+    <title>Undangan Rapat Koordinasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Poppins:wght@300;400;600&family=Sacramento&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --krem-lembut: #FFFAF5;
+            --krem-dasar: #F9F2E9;
+            --coklat-lembut: #D4B996;
+            --coklat-tengah: #B8956A;
+            --coklat-gelap: #7A5C38;
+            --coklat-tulis: #5C4027;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--krem-lembut);
+            color: var(--coklat-tulis);
+            overflow-x: hidden;
+        }
+        .font-handwriting { font-family: 'Caveat', cursive; }
+        .font-cursive { font-family: 'Sacramento', cursive; }
+
+        .stars-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+            background: 
+                radial-gradient(circle at 10% 10%, rgba(255,255,255,0.8) 0%, transparent 50%),
+                radial-gradient(circle at 90% 20%, rgba(255,255,255,0.6) 0%, transparent 45%),
+                radial-gradient(circle at 15% 80%, rgba(255,255,255,0.7) 0%, transparent 50%),
+                linear-gradient(135deg, #FFFAF5 0%, #F9F2E9 50%, #F2E6D8 100%);
+            animation: latarLembut 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes latarLembut {
+            0% { background-position: 0% 0%, 100% 0%, 0% 100%, 0% 0%; }
+            50% { background-position: 5% 5%, 95% 15%, 10% 85%, 0% 0%; }
+            100% { background-position: 0% 10%, 100% 5%, 5% 90%, 0% 0%; }
+        }
+
+        .bg-bintang {
+            position: fixed;
+            width: 3px; height: 3px;
+            background-color: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            pointer-events: none; z-index: 1;
+            animation: kelapKelip 3s ease-in-out infinite;
+        }
+        .bg-bintang:nth-child(1) { top: 10%; left: 20%; animation-delay: 0s; }
+        .bg-bintang:nth-child(2) { top: 15%; left: 80%; animation-delay: 0.5s; }
+        .bg-bintang:nth-child(3) { top: 70%; left: 10%; animation-delay: 1s; }
+        .bg-bintang:nth-child(4) { top: 80%; left: 75%; animation-delay: 1.5s; }
+        .bg-bintang:nth-child(5) { top: 40%; left: 5%; animation-delay: 2s; }
+        .bg-bintang:nth-child(6) { top: 30%; left: 90%; animation-delay: 2.5s; }
+
+        @keyframes kelapKelip {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+
+        .envelope-wrapper { perspective: 1200px; }
+        .envelope {
+            position: relative;
+            width: 320px; height: 220px;
+            background: linear-gradient(135deg, #fffdf9 0%, #f8f4ef 100%);
+            border-radius: 8px;
+            box-shadow:
+                0 25px 60px -15px rgba(92, 64, 39, 0.35),
+                inset 0 0 25px rgba(139, 115, 85, 0.08);
+            cursor: pointer;
+            transition: transform 0.6s ease, opacity 0.8s ease, box-shadow 0.3s ease;
+            transform-style: preserve-3d;
+            will-change: transform, box-shadow;
+        }
+        @media (min-width: 640px) { .envelope { width: 460px; height: 300px; } }
+
+        .envelope .flap {
+            position: absolute; top: 0; left: 0;
+            border-left: 160px solid transparent;
+            border-right: 160px solid transparent;
+            border-top: 135px solid #F2E6D8;
+            transform-origin: top;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
+            z-index: 4;
+            filter: drop-shadow(0 8px 20px rgba(92, 64, 39, 0.25));
+        }
+        @media (min-width: 640px) {
+            .envelope .flap { border-left-width: 230px; border-right-width: 230px; border-top-width: 175px; }
+        }
+        .envelope.open .flap { transform: rotateX(180deg); z-index: 1; }
+
+        .envelope .pocket {
+            position: absolute; bottom: 0; left: 0;
+            border-left: 160px solid #E8D9C8;
+            border-right: 160px solid #E8D9C8;
+            border-bottom: 115px solid #DCC9B5;
+            border-radius: 0 0 8px 8px;
+            z-index: 3;
+            filter: drop-shadow(0 -8px 20px rgba(92, 64, 39, 0.2));
+        }
+        @media (min-width: 640px) {
+            .envelope .pocket { border-left-width: 230px; border-right-width: 230px; border-bottom-width: 155px; }
+        }
+
+        .envelope .letter-preview {
+            position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+            width: 86%; height: 80%;
+            background: linear-gradient(145deg, #fffdf9 0%, #faf6f0 100%);
+            border-radius: 6px;
+            padding: 20px; text-align: center;
+            border: 1px solid #E8D9C8;
+            box-shadow: 0 8px 25px rgba(92, 64, 39, 0.12), inset 0 0 15px rgba(255,255,255,0.8);
+            transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s;
+            z-index: 2;
+        }
+        .envelope.open .letter-preview { transform: translateX(-50%) translateY(-100px); }
+
+        .reveal {
+            opacity: 0; transform: translateY(40px);
+            transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        .ketikan {
+            overflow: hidden; border-right: 2px solid transparent;
+            white-space: pre-wrap; width: 0;
+        }
+        .ketikan.aktif {
+            border-right-color: #B8956A;
+            animation: kedipKursor 0.7s step-end infinite;
+        }
+        @keyframes kedipKursor {
+            50% { border-right-color: transparent; }
+        }
+        .ketikan-selesai { width: 100%; border-right: none; }
+
+        .tanda‑tangan‑box {
+            text‑align: right;
+            margin‑top: 40px;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+        .tanda‑tangan‑muncul {
+            opacity: 1;
+        }
+        .tanda‑tangan‑gambar {
+            width: 160px;
+            margin‑bottom: 8px;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen">
+
+    <div class="stars-bg"></div>
+
+    <div class="bg-bintang"></div>
+    <div class="bg-bintang"></div>
+    <div class="bg-bintang"></div>
+    <div class="bg-bintang"></div>
+    <div class="bg-bintang"></div>
+    <div class="bg-bintang"></div>
+
+    <section id="envelope-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/65 backdrop-blur-sm transition-opacity duration-1000">
+        <p class="text-amber-700/80 text-xs sm:text-sm font-light mb-8 tracking-widest uppercase">
+            Undangan Rapat (KLIK AMPLOP)
+        </p>
+        <div class="envelope-wrapper">
+            <div id="main-envelope" class="envelope" onclick="openEnvelope()">
+                <div class="flap"></div>
+                <div class="letter-preview flex flex-col items-center justify-center">
+                    <div class="w-8 h-0.5 bg-amber-600/25 mb-2"></div>
+                    <h3 class="font-handwriting text-2xl sm:text-4xl text-amber-900 font-bold">UNDANGAN 📜</h3>
+                    <p class="text‑[10px] sm:text‑xs text‑amber‑700/70 mt‑2 font‑serif italic">Buka surat ini...</p>
+                    <div class="w-8 h-0.5 bg-amber-600/25 mt-3"></div>
+                </div>
+                <div class="pocket"></div>
+            </div>
+        </div>
+    </section>
+
+    <main id="main-content" class="relative z-10 max-w-5xl mx-auto px-4 py-12 space-y-20 hidden">
+
+        <section class="reveal bg-white/90 rounded-2xl p-6 sm:p-10 shadow-xl border border-amber-100/80 my-8">
+            <div class="absolute top-4 right-4 text-2xl">📋</div>
+            <div class="absolute -top-3 left-1/2 -translate-x-1/2 w-28 h-7 bg-amber-100/80 rotate-1 shadow-sm"></div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center mt-4">
+                <div class="md:col-span-12 space-y-4">
+                    <span class="inline-block bg-amber-100 text-amber-700 text-xs px-3 py-1 rounded-full font-bold opacity-0" id="tag-salam">
+                        Nomor: ____ / ____ / Tahun 2026
+                    </span>
+                    
+                    <h2 class="text-3xl sm:text-4xl font-handwriting text-amber-900 leading-tight text-center">
+                        <span class="ketikan" id="ketikan-judul"></span>
+                    </h2>
+
+                    <p class="text-amber-800 text-base leading-relaxed font-bold">
+                        <span class="ketikan" id="ketikan-isi"></span>
+                    </p>
+
+                    <div class="tanda‑tangan‑box" id="kotak‑ttd">
+                        <img src="tanda-tangan.jpeg" alt="Tanda tangan" class="tanda‑tangan‑gambar">
+                        <p>Moh Farel Adzdzikri</p>
+                        <p>Jabatan: Presiden Palupi serikat</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <table class="tabel-penutup">
+            <tr>
+                <td>Undangan Rapat Koordinasi Batas Wilayah 📌</td>
+            </tr>
+        </table>
+    </main>
+
+    <script>
+        function ketikanElemen(id, teks, kecepatan = 45) {
+            const el = document.getElementById(id);
+            el.classList.add('aktif');
+            let i = 0;
+            return new Promise(resolve => {
+                const interval = setInterval(() => {
+                    if (i < teks.length) {
+                        el.textContent += teks.charAt(i);
+                        i++;
+                    } else {
+                        clearInterval(interval);
+                        el.classList.remove('aktif');
+                        el.classList.add('ketikan-selesai');
+                        resolve();
+                    }
+                }, kecepatan);
+            });
+        }
+
+        async function mulaiKetikan() {
+            const tag = document.getElementById('tag-salam');
+            tag.style.opacity = '1';
+            tag.style.transition = 'opacity 0.8s ease';
+
+            await ketikanElemen('ketikan-judul', "UNDANGAN RAPAT KOORDINASI PENEGASAN BATAS WILAYAH", 45);
+            await ketikanElemen('ketikan-isi', 
+`Kepada Yth.
+Bapak‑Bapak / Ibu‑Ibu Peserta Rapat
+ ‑ Perangkat Desa
+ ‑ Tokoh Masyarakat
+ ‑ Petugas Instansi Terkait
+
+Dengan hormat,
+Sehubungan dengan perlu penegasan batas wilayah antar lingkungan/desa, maka kami mengundang Bapak/Ibu untuk hadir dalam rapat koordinasi yang akan dilaksanakan pada:
+
+📅 Hari / Tanggal : Senin, 1 November 2026
+🕒 Waktu : Pukul 09.00 Wita s/d selesai
+📍 Tempat : Achy games 2
+📌 Acara : Pembahasan & Penegasan Batas Wilayah
+
+Mohon kehadiran Bapak/Ibu tepat waktu, membawa peta wilayah dan data pendukung yang dimiliki untuk dibahas bersama.`, 30);
+            
+            // Setelah semua tulisan selesai → baru muncul tanda tangan
+            document.getElementById('kotak‑ttd').classList.add('tanda‑tangan‑muncul');
+        }
+
+        function kembangApiLama() {
+            const durasiTotal = 4000;
+            const waktuMulai = Date.now();
+            function ledakan() {
+                if (Date.now() - waktuMulai >= durasiTotal) return;
+                confetti({
+                    particleCount: 80 + Math.random() * 60,
+                    spread: 70 + Math.random() * 30,
+                    origin: { x: Math.random(), y: 0.6 + Math.random() * 0.2 },
+                    colors: ['#F59E0B','#FBBF24','#FDE68A','#FFC0CB','#FF69B4','#FFFFFF'],
+                    gravity: 0.6,
+                    ticks: 200
+                });
+                setTimeout(ledakan, 300 + Math.random() * 500);
+            }
+            ledakan();
+        }
+
+        function openEnvelope() {
+    const envelope = document.getElementById('main-envelope');
+    const layar = document.getElementById('envelope-screen');
+    const isi = document.getElementById('main-content');
+    envelope.classList.add('open');
+    setTimeout(kembangApiLama, 300);
+    
+    setTimeout(() => {
+        layar.classList.add('opacity-0','pointer-events-none');
+        setTimeout(() => {
+            layar.style.display = 'none';
+            isi.classList.remove('hidden');
+            setTimeout(kembangApiLama, 200);
+            setTimeout(() => {
+                document.querySelectorAll('.reveal').forEach(el => el.classList.add('active'));
+            }, 300);
+            setTimeout(mulaiKetikan, 600);
+        }, 800);
+    }, 1500);
+}
+
+function handleScroll() {
+    const reveals = document.querySelectorAll('.reveal');
+    reveals.forEach(el => {
+        if (el.getBoundingClientRect().top < window.innerHeight - 100) el.classList.add('active');
+    });
+}
+window.addEventListener('scroll', handleScroll);
+</script>
+
+</body>
+</html>
